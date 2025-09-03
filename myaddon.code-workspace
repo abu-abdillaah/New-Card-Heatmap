@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../anki"
+		},
+		{
+			"path": "../review-heatmap"
+		}
+	],
+	"settings": {}
+}

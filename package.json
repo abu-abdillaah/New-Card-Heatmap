@@ -1,0 +1,18 @@
+{
+  "name": "myaddon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --outfile=_user_files/bundle.js --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cal-heatmap": "^4.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  }
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Cal-Heatmap Example</title>
+  
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- v6 is also supported -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
+
+</head>
+<style>/* Container for the buttons */
+.heatmap-nav {
+  display: flex;
+  gap: 1px; /* Space between buttons */
+  margin-bottom: 1em;
+}
+
+/* Styling for all buttons inside the container */
+.heatmap-nav button {
+  /* Appearance */
+  background-color: #38424d;
+  color: #c0c5ce;
+  border: none;
+  border-radius: 3px;
+  
+  /* Sizing and Alignment */
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Text and Font */
+  font-size: 12px;
+  font-weight: bold;
+  
+  /* Interactivity */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Style for when you hover over a button */
+.heatmap-nav button:hover {
+  background-color: #4b5867;
+}
+
+/* The new wrapper for the heatmap and its controls */
+.heatmap-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;    /* Center items horizontally */
+  gap: 1em;               /* Add a nice space between the heatmap and buttons */
+}
+
+/* 👇 New rule for the main wrapper */
+#my-addon-wrapper {
+    /* This adds a large block of empty space above your addon, creating separation. */ 
+    margin-top: 20px;
+  }
+</style>
+<body>
+    <div id="my-addon-wrapper">
+  <div class="heatmap-container">
+  <div id="cal-heatmap2"></div>
+  
+  <div class="heatmap-nav">
+    <button id="btn-prev">&lt;</button>
+    <button id="btn-today">O</button>
+    <button id="btn-next">&gt;</button>
+  </div>
+    </div>
+    </div>
+
+    <script>
+        const data = %%DATA_JSON%%;
+        //[{ date: '2025-01-01', value: 1 },
+  //{ date: '2025-01-02', value: 10 },
+//{ date: '2025-01-03', value: 25 },
+  //{ date: '2025-01-04', value: 50 },];
+    const cal = new CalHeatmap();
+    cal.paint({
+        itemSelector: '#cal-heatmap2',
+        data: { source:data, x : 'date', y : 'value' },
+        date: { start: new Date(new Date().getFullYear(), 0, 1), highlight: [new Date(), // Highlight today
+        ], },
+        range: 12,
+        domain: { type: 'month', 
+        gutter: 2,
+        label: {
+        text: "MMM 'YY",    // Format as 'May ''25', 'Jun ''25', etc.
+        textAlign: 'start', // Align text to the left of the month block
+        position: 'bottom', // Place labels below the calendar
+        offset: { y: 5 }    // Optional: add 5px of space below the grid
+        } },
+        subDomain: { type: 'day', radius: 2, width: 9, height: 9, gutter: 2 },
+        theme: 'dark',
+        scale: {
+        color: {
+            type: 'threshold',
+            range: ['#040404ff', '#abf9efff', '#4ad5e4ff','#38abcfff', '#218a9dff'],
+            domain: [1, 10, 25, 50]
+        }
+        }
+    },
+        [
+        [
+            Tooltip,
+            {
+            text: function (date, value, dayjsDate) {
+                return (value ? value : 'No') + ' cards learnt on ' + dayjsDate.format('LL');
+            }
+            },
+        ],
+        ]
+    );
+    // Find the buttons you created in the HTML
+    // ... after your cal.paint() call ...
+
+    // Get all three buttons by their ID
+    const prevButton = document.getElementById('btn-prev');
+    const todayButton = document.getElementById('btn-today');
+    const nextButton = document.getElementById('btn-next');
+
+    // Previous button
+    prevButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    cal.previous();
+    });
+
+    // "Go to Today" button
+    todayButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    // This API method centers the calendar on the provided date
+    cal.jumpTo(new Date()); 
+    });
+
+    // Next button
+    nextButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    cal.next();
+    });
+    </script>
+</body>
+</html>
+
