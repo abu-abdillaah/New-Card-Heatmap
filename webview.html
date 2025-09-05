@@ -2,7 +2,11 @@
 
 <html>
 <head>
-    <script src="/_addons/%%WEB_PATH%%/user_files/d3.v7.min.js"></script>
+  <title>Cal-Heatmap Example</title>
+  
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <!-- v6 is also supported -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
     <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -56,9 +60,8 @@
 /* 👇 New rule for the main wrapper */
 #my-addon-wrapper {
     /* This adds a large block of empty space above your addon, creating separation. */ 
-    margin-top: 20px;
-    padding: 1em 1.5em; /* Top/bottom 1em, Left/Right 1.5em */
-    margin: 2em 0;
+    margin-top: 10px;
+    padding: 1em 1.5em;
     position: relative;
   }
 
@@ -72,12 +75,12 @@
   }
   .heatmap-stats {
     font-size: 14px;
-    color: #c0c5ce;
+    color: #f1f9f7;
     display: flex;
     gap: 1.5em; /* Space between stat items */
   }
   .heatmap-stats b {
-    color: #fff;
+    color: #0ad0d7;
     font-weight: 600;
   }
 </style>
@@ -85,9 +88,9 @@
     <div id="my-addon-wrapper">
   <div class="heatmap-container">
     <div class="heatmap-nav">
-      <button id="btn-prev1" title="Previous_1">&lt;</button>
-      <button id="btn-today1" title="Go to Today_1">O</button>
-      <button id="btn-next1" title="Next_1">&gt;</button>
+      <button id="btn-prev1" title="Previous">&lt;</button>
+      <button id="btn-today1" title="Go to Today">O</button>
+      <button id="btn-next1" title="Next">&gt;</button>
     </div>
   <div id="cal-heatmap2"></div>
   <div class="heatmap-footer">
@@ -105,7 +108,10 @@
     cal.paint({
         itemSelector: '#cal-heatmap2',
         data: { source:data.heatmap_data, x : 'date', y : 'value' },
-        date: { start: new Date(new Date().getFullYear(), 0, 1), highlight: [new Date(), // Highlight today
+        date: { start: new Date(new Date().getFullYear(), 0, 1), 
+            min: new Date('2021-01-01'),
+            max: new Date('2025-12-01'),
+            highlight: [new Date(), // Highlight today
         ], },
         range: 12,
         domain: { type: 'month', 
@@ -152,20 +158,20 @@
     // Previous button
     prevButton.addEventListener('click', function(e) {
     e.preventDefault();
-    cal.previous();
+    cal.previous(6);
     });
 
     // "Go to Today" button
     todayButton.addEventListener('click', function(e) {
     e.preventDefault();
     // This API method centers the calendar on the provided date
-    cal.jumpTo(new Date()); 
+    cal.jumpTo(new Date(new Date().getFullYear(), 0, 1), true); 
     });
 
     // Next button
     nextButton.addEventListener('click', function(e) {
     e.preventDefault();
-    cal.next();
+    cal.next(6);
     });
     </script>
 </body>

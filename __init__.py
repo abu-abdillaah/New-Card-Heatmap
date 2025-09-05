@@ -1,74 +1,3 @@
-
-"""def testFunction():
-    # Get today's timestamp at Anki's new day start time
-    #today = mw.col.sched.day_cutoff // 86400
-    today = intTime() // 86400
-
-    # Query revlog for all reviews up to today
-    query = 
-    SELECT (id/1000/86400) AS day, COUNT(*) 
-    FROM revlog 
-    WHERE type = 0 AND lastIvl = 0 AND id/1000/86400 <= ? 
-    GROUP BY day
-    ORDER BY day
-    
-    results = mw.col.db.all(query, today)
-
-    # Print results: day (as days since epoch), count
-    # Get the last 5 days from results
-    # Create a dictionary mapping date (YYYY-MM-DD) to review count (0 if no reviews)
-    date_counts = {}
-    # Get all days in the range from the earliest to the latest in results
-    if results:
-        #make last day today
-        first_day = results[0][0]
-        last_day = today
-        for day in range(first_day, last_day + 1):
-            date_str = time.strftime('%Y-%m-%d', time.gmtime(day * 86400))
-            # Find count for this day if present, else 0
-            count = next((c for d, c in results if d == day), 0)
-            date_counts[date_str] = count
-    else:
-        date_counts = {}
-    msg = f'{date_counts["2025-08-29"]}'
-    showInfo(msg)
-
-action = QAction("test", mw)
-qconnect(action.triggered, testFunction)
-mw.form.menuTools.addAction(action)"""
-
-"""import os
-
-# Anki imports
-from aqt import mw
-from aqt.qt import QAction
-from aqt.webview import AnkiWebView
-
-# Path to the current add-on's folder
-addon_path = os.path.dirname(__file__)
-
-def show_static_heatmap():
-    
-    #Creates a webview and loads the static HTML file directly,
-    #without injecting any data.
-    
-    webview = AnkiWebView(title="Review Heatmap (Static Test)")
-    
-    # Read the HTML file from the add-on folder
-    with open(os.path.join(addon_path, "webview.html"), "r", encoding="utf-8") as f:
-        html_content = f.read()
-    
-    # Load the HTML directly into the webview
-    webview.stdHtml(html_content)
-    webview.show()
-
-# Create a new menu item in Anki's "Tools" menu
-action = QAction("Show Review Heatmap (Test)", mw)
-# When the menu item is clicked, call the show_static_heatmap function
-action.triggered.connect(show_static_heatmap)
-# Add the menu item to the Tools menu
-mw.form.menuTools.addAction(action)"""
-
 import os
 import json
 from datetime import datetime
@@ -80,6 +9,22 @@ from aqt.qt import QAction
 from aqt.webview import AnkiWebView
 from aqt import deckbrowser
 from aqt import gui_hooks
+
+def _get_anki_day_for_timestamp(timestamp_ms: int) -> int:
+    """
+    Takes a single millisecond timestamp and returns a normalized
+    "Anki day" timestamp using a direct db.scalar query.
+    """
+    rollover_hour = mw.col.conf.get("rollover", 4)
+    
+    # This query format is identical to your example
+    # It doesn't need a 'FROM' because it operates directly on the input value
+    query = f"""
+        SELECT CAST(strftime('%s', '{timestamp_ms/1000}', 'unixepoch', 
+        '-{rollover_hour} hours', 'localtime', 'start of day') AS INT)
+    """
+    
+    return mw.col.db.scalar(query)
 
 def calculate_streaks(day_timestamps, today_ts):
     """
@@ -126,8 +71,7 @@ def fetch_review_data():
     all_timestamps_ms = mw.col.db.list(query)
 
     all_day_timestamps = [
-        int((ts / 1000 - offset_seconds) // day_in_seconds * day_in_seconds)
-        for ts in all_timestamps_ms
+        _get_anki_day_for_timestamp(ts) for ts in all_timestamps_ms
     ]
 
     # 2. Use Counter to count how many times each day-timestamp appears.
@@ -142,7 +86,7 @@ def fetch_review_data():
     
     # --- Streak calculation remains the same, but uses the keys from our Counter ---
     unique_day_timestamps = sorted(daily_counts.keys())
-    today_ts = mw.col.sched.day_cutoff - day_in_seconds
+    today_ts = _get_anki_day_for_timestamp((mw.col.sched.day_cutoff-day_in_seconds)*1000)
     streaks = calculate_streaks(unique_day_timestamps, today_ts)
     
     return {
@@ -150,15 +94,6 @@ def fetch_review_data():
         'longest_streak': streaks['longest'],
         'current_streak': streaks['current']
     }
-"""counts = Counter(
-        # 3. For each timestamp, subtract the offset BEFORE converting to a date
-        datetime.fromtimestamp((ts / 1000) - offset_seconds).strftime('%Y-%m-%d')
-        for ts in all_timestamps_ms
-    )
-    
-    # The rest of the function is unchanged
-    heatmap_data = [{"date": date, "value": count} for date, count in counts.items()]
-    return heatmap_data"""
 
 def show_heatmap_with_data():
     """
@@ -198,15 +133,6 @@ def on_deck_browser_did_render():
     review_data_json = json.dumps(review_data)
     final_html = html_snippet.replace("%%DATA_JSON%%", review_data_json)
     
-    # 2. Escape the HTML snippet so it can be safely used inside a JavaScript command
-    #    json.dumps() is a clever and reliable way to do this.
-    #html_for_javascript = json.dumps(final_html)
-
-    # 3. Create the JavaScript command to inject the HTML at the end of the page
-    #js_command = f"document.body.insertAdjacentHTML('beforeend', {html_for_javascript});"
-
-    # 4. Execute the JavaScript command on the Deck Browser's webview
-    #deck_browser.web.eval(js_command)
     return final_html
 
 def displayHeatMap(deck_browser, content):
@@ -222,8 +148,3 @@ def displayHeatMap(deck_browser, content):
 mw.addonManager.setWebExports(__name__, r"user_files(\/|\\).*\.(css|js)")
 # 👇 Register the hook that is confirmed to exist in your Anki version
 gui_hooks.deck_browser_will_render_content.append(displayHeatMap)
-
-# Add a menu item in Anki's "Tools" menu to trigger the heatmap
-action = QAction("Show Review Heatmap", mw)
-action.triggered.connect(show_heatmap_with_data)
-mw.form.menuTools.addAction(action)
