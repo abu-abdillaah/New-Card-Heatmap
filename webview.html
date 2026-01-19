@@ -16,7 +16,7 @@
 <style>/* Container for the buttons */
 .heatmap-nav {
   display: flex;
-  gap: 1px; /* Space between buttons */
+  gap: 1px; 
   margin-bottom: 10px;
 }
 
@@ -79,38 +79,37 @@
 /* The new wrapper for the heatmap and its controls */
 .heatmap-container {
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center;    /* Center items horizontally */
-  gap: 10px;               /* Add a nice space between the heatmap and buttons */
+  flex-direction: column; 
+  align-items: center;   
+  gap: 10px;               
 }
 
-/* 👇 New rule for the main wrapper */
+
 #my-addon-wrapper {
-    /* This adds a large block of empty space above your addon, creating separation. */ 
     margin-top: 10px;
     padding: 1em 1.5em;
     position: relative;
   }
 
-/* New CSS for the footer layout */
+
   .heatmap-footer {
     display: flex;
-    justify-content: flex-start; /* Pushes nav left and stats right */
+    justify-content: flex-start; 
     align-items: center;
     margin-top: 10px;
-    padding: 0 10px; /* Add some padding */
+    padding: 0 10px; 
   }
   .heatmap-stats {
     font-size: 14px;
     color: #1b1c1d;
     display: flex;
-    gap: 1.5em; /* Space between stat items */
+    gap: 1.5em; 
   }
   .night_mode .heatmap-stats {
     font-size: 14px;
     color: #f1f9f7;
     display: flex;
-    gap: 1.5em; /* Space between stat items */
+    gap: 1.5em; 
   }
   .heatmap-stats b {
     color: #0ad0d7;
@@ -145,16 +144,16 @@
         date: { start: new Date(new Date().getFullYear(), 0, 1), 
             min: new Date('2021-01-01'),
             max: new Date('2025-12-01'),
-            highlight: [new Date(), // Highlight today
+            highlight: [new Date(), 
         ], },
         range: 12,
         domain: { type: 'month', 
         gutter: 2,
         label: {
-        text: "MMM 'YY",    // Format as 'May ''25', 'Jun ''25', etc.
-        textAlign: 'start', // Align text to the left of the month block
-        position: 'bottom', // Place labels below the calendar
-        offset: { y: 5 }    // Optional: add 5px of space below the grid
+        text: "MMM 'YY",    
+        textAlign: 'start', 
+        position: 'bottom', 
+        offset: { y: 5 }    
         } },
         subDomain: { type: 'day', radius: 2, width: 9, height: 9, gutter: 2 },
         theme: theme,
@@ -177,14 +176,11 @@
         ],
         ]
     );
-    // Find the buttons you created in the HTML
-    // ... after your cal.paint() call ...
-    // Populate the stats
+    
     document.getElementById('longest-streak-stat').textContent = `${data.longest_streak} days`;
     document.getElementById('current-streak-stat').textContent = `${data.current_streak} days`;
 
 
-    // Get all three buttons by their ID
     const prevButton = document.getElementById('btn-prev1');
     const todayButton = document.getElementById('btn-today1');
     const nextButton = document.getElementById('btn-next1');
