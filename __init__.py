@@ -67,7 +67,22 @@ def fetch_review_data():
     day_in_seconds = 86400
 
     # The query remains the same: filter for 'learn' events
-    query = "SELECT id FROM revlog WHERE type = 0 AND lastIvl = 0"
+    query = """SELECT id 
+    FROM revlog AS r1
+    WHERE 
+        type = 0 
+        AND id IN (
+            SELECT
+                id
+            FROM
+                revlog AS r2
+            WHERE
+                r1.cid = r2.cid
+            ORDER BY
+                id
+            LIMIT
+                1)
+        """
     all_timestamps_ms = mw.col.db.list(query)
 
     all_day_timestamps = [
