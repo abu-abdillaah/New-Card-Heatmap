@@ -176,5 +176,5 @@ def on_webview_will_set_content(web_content, context):
     web_content.body += final_html
 
 mw.addonManager.setWebExports(__name__, r"user_files(\/|\\).*\.(css|js)")
-gui_hooks.webview_will_set_content.append(on_webview_will_set_content)
-
+#gui_hooks.webview_will_set_content.append(on_webview_will_set_content)
+gui_hooks.deck_browser_will_render_content.append(displayHeatMap)
