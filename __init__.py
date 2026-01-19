@@ -9,6 +9,7 @@ from aqt.qt import QAction
 from aqt.webview import AnkiWebView
 from aqt import deckbrowser
 from aqt import gui_hooks
+from aqt.theme import theme_manager
 
 def _get_anki_day_for_timestamp(timestamp_ms: int) -> int:
     """
@@ -133,12 +134,21 @@ def show_heatmap_with_data():
     webview.stdHtml(final_html)
     webview.show()
 
+def set_theme():
+    """
+    Sets the theme of the heatmap based on Anki's current theme.
+    """
+    if theme_manager.night_mode:
+        return 'dark'
+    else:
+        return 'light'
+
 def on_deck_browser_did_render():
     """
     Called after the Deck Browser has rendered.
     Injects the heatmap into the page using JavaScript.
     """
-    # 1. Prepare the data and HTML snippet as before
+    theme = set_theme()
     addon_path = os.path.dirname(__file__)
     with open(os.path.join(addon_path, "webview.html"), "r", encoding="utf-8") as f:
         html_snippet_1 = f.read()
@@ -146,7 +156,7 @@ def on_deck_browser_did_render():
 
     review_data = fetch_review_data()
     review_data_json = json.dumps(review_data)
-    final_html = html_snippet.replace("%%DATA_JSON%%", review_data_json)
+    final_html = html_snippet.replace("%%DATA_JSON%%", review_data_json).replace("%%THEME%%", theme)
     
     return final_html
 
@@ -158,8 +168,27 @@ def displayHeatMap(deck_browser, content):
     """
     content.stats += on_deck_browser_did_render()
 
+def on_webview_will_set_content(web_content, context):
+    """
+    Called before any Anki webview sets its content.
+    If it's our heatmap webview, we can modify the content here if needed.
+    """
+    if not isinstance(context, deckbrowser.DeckBrowser):
+        return
+    theme = set_theme()
+    addon_path = os.path.dirname(__file__)
+    with open(os.path.join(addon_path, "webview.html"), "r", encoding="utf-8") as f:
+        html_snippet_1 = f.read()
+        html_snippet = html_snippet_1.replace("%%WEB_PATH%%", __name__)
 
+    review_data = fetch_review_data()
+    review_data_json = json.dumps(review_data)
+    final_html = html_snippet.replace("%%DATA_JSON%%", review_data_json).replace("%%THEME%%", theme)
+
+    web_content.body += final_html
 
 mw.addonManager.setWebExports(__name__, r"user_files(\/|\\).*\.(css|js)")
 # 👇 Register the hook that is confirmed to exist in your Anki version
-gui_hooks.deck_browser_will_render_content.append(displayHeatMap)
+#gui_hooks.deck_browser_will_render_content.append(displayHeatMap)
+gui_hooks.webview_will_set_content.append(on_webview_will_set_content)
+#gui_hooks.theme_did_change.append(displayHeatMap)

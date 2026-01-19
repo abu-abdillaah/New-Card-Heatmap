@@ -17,20 +17,20 @@
 .heatmap-nav {
   display: flex;
   gap: 1px; /* Space between buttons */
-  margin-bottom: 1em;
+  margin-bottom: 10px;
 }
 
 /* Styling for all buttons inside the container */
 .heatmap-nav button {
   /* Appearance */
-  background-color: #38424d;
-  color: #c0c5ce;
+  background-color: #e5e4e4;
+  color: #333333;
   border: none;
   border-radius: 3px;
   
   /* Sizing and Alignment */
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,6 +46,33 @@
 
 /* Style for when you hover over a button */
 .heatmap-nav button:hover {
+  background-color: #e1e1e1;
+}
+.night_mode .heatmap-nav button {
+  /* Appearance */
+  background-color: #38424d;
+  color: #c0c5ce;
+  border: none;
+  border-radius: 3px;
+  
+  /* Sizing and Alignment */
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Text and Font */
+  font-size: 12px;
+  font-weight: bold;
+  
+  /* Interactivity */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Style for when you hover over a button */
+.night_mode .heatmap-nav button:hover {
   background-color: #4b5867;
 }
 
@@ -54,7 +81,7 @@
   display: flex;
   flex-direction: column; /* Stack items vertically */
   align-items: center;    /* Center items horizontally */
-  gap: 1em;               /* Add a nice space between the heatmap and buttons */
+  gap: 10px;               /* Add a nice space between the heatmap and buttons */
 }
 
 /* 👇 New rule for the main wrapper */
@@ -70,10 +97,16 @@
     display: flex;
     justify-content: flex-start; /* Pushes nav left and stats right */
     align-items: center;
-    margin-top: 1em;
+    margin-top: 10px;
     padding: 0 10px; /* Add some padding */
   }
   .heatmap-stats {
+    font-size: 14px;
+    color: #1b1c1d;
+    display: flex;
+    gap: 1.5em; /* Space between stat items */
+  }
+  .night_mode .heatmap-stats {
     font-size: 14px;
     color: #f1f9f7;
     display: flex;
@@ -88,9 +121,9 @@
     <div id="my-addon-wrapper">
   <div class="heatmap-container">
     <div class="heatmap-nav">
-      <button id="btn-prev1" title="Previous">&lt;</button>
-      <button id="btn-today1" title="Go to Today">O</button>
-      <button id="btn-next1" title="Next">&gt;</button>
+      <button id="btn-prev1" title="Previous">←</button>
+      <button id="btn-today1" title="Go to Today">—</button>
+      <button id="btn-next1" title="Next">→</button>
     </div>
   <div id="cal-heatmap2"></div>
   <div class="heatmap-footer">
@@ -104,6 +137,7 @@
 
     <script>
     const data = %%DATA_JSON%%;
+    const theme = "%%THEME%%";
     const cal = new CalHeatmap();
     cal.paint({
         itemSelector: '#cal-heatmap2',
@@ -123,7 +157,7 @@
         offset: { y: 5 }    // Optional: add 5px of space below the grid
         } },
         subDomain: { type: 'day', radius: 2, width: 9, height: 9, gutter: 2 },
-        theme: 'dark',
+        theme: theme,
         scale: {
         color: {
             type: 'threshold',
