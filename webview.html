@@ -138,14 +138,14 @@
     cal.paint({
         itemSelector: '#cal-heatmap2',
         data: { source:data.heatmap_data, x : 'date', y : 'value' },
-        date: { start: new Date(new Date().getFullYear(), 0, 1), 
+        date: { start: new Date(Date.UTC(new Date().getFullYear(), 0, 1)), 
             min: new Date(data.heatmap_data[0].date),
             max: new Date(new Date().getFullYear(), 11, 31),
             highlight: [new Date(), 
         ], },
         range: 12,
         domain: { type: 'month', 
-        gutter: 2,
+        gutter: 4,
         label: {
         text: "MMM 'YY",    
         textAlign: 'start', 
@@ -192,7 +192,7 @@
     todayButton.addEventListener('click', function(e) {
     e.preventDefault();
     // This API method centers the calendar on the provided date
-    cal.jumpTo(new Date(new Date().getFullYear(), 0, 1), true); 
+    cal.jumpTo(new Date(Date.UTC(new Date().getFullYear(), 0, 1)), true); 
     });
 
     // Next button
