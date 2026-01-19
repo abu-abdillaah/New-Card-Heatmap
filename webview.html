@@ -2,11 +2,7 @@
 
 <html>
 <head>
-  <title>Cal-Heatmap Example</title>
-  
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- v6 is also supported -->
-    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="/_addons/%%WEB_PATH%%/user_files/d3.v7.min.js"></script>
     <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
     <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -94,7 +90,6 @@
       <button id="btn-next1" title="Next_1">&gt;</button>
     </div>
   <div id="cal-heatmap2"></div>
-  
   <div class="heatmap-footer">
     <div class="heatmap-stats">
       <span>Longest streak: <b id="longest-streak-stat">...</b></span>
@@ -105,11 +100,7 @@
     </div>
 
     <script>
-        const data = %%DATA_JSON%%;
-        //[{ date: '2025-01-01', value: 1 },
-  //{ date: '2025-01-02', value: 10 },
-//{ date: '2025-01-03', value: 25 },
-  //{ date: '2025-01-04', value: 50 },];
+    const data = %%DATA_JSON%%;
     const cal = new CalHeatmap();
     cal.paint({
         itemSelector: '#cal-heatmap2',

@@ -168,7 +168,8 @@ def show_heatmap_with_data():
     # 1. Prepare the data and HTML snippet as before
     addon_path = os.path.dirname(__file__)
     with open(os.path.join(addon_path, "webview.html"), "r", encoding="utf-8") as f:
-        html_snippet = f.read()
+        html_snippet_1 = f.read()
+        html_snippet = html_snippet_1.replace("%%WEB_PATH%%", addon_path)
 
     review_data = fetch_review_data()
     review_data_json = json.dumps(review_data)
@@ -190,7 +191,8 @@ def on_deck_browser_did_render():
     # 1. Prepare the data and HTML snippet as before
     addon_path = os.path.dirname(__file__)
     with open(os.path.join(addon_path, "webview.html"), "r", encoding="utf-8") as f:
-        html_snippet = f.read()
+        html_snippet_1 = f.read()
+        html_snippet = html_snippet_1.replace("%%WEB_PATH%%", __name__)
 
     review_data = fetch_review_data()
     review_data_json = json.dumps(review_data)
@@ -216,6 +218,8 @@ def displayHeatMap(deck_browser, content):
     content.stats += on_deck_browser_did_render()
 
 
+
+mw.addonManager.setWebExports(__name__, r"user_files(\/|\\).*\.(css|js)")
 # 👇 Register the hook that is confirmed to exist in your Anki version
 gui_hooks.deck_browser_will_render_content.append(displayHeatMap)
 
