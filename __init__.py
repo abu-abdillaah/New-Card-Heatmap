@@ -81,6 +81,33 @@ from aqt.webview import AnkiWebView
 from aqt import deckbrowser
 from aqt import gui_hooks
 
+def calculate_streaks(day_timestamps, today_ts):
+    """
+    Takes a sorted list of unique day-start timestamps and calculates streaks.
+    """
+    if not day_timestamps:
+        return {'longest': 0, 'current': 0}
+
+    longest_streak = 0
+    current_streak = 1
+
+    for i in range(len(day_timestamps) - 1):
+        if day_timestamps[i] + 86400 == day_timestamps[i+1]:
+            current_streak += 1
+        else:
+            longest_streak = max(longest_streak, current_streak)
+            current_streak = 1
+    
+    longest_streak = max(longest_streak, current_streak)
+
+    last_study_ts = day_timestamps[-1]
+    if last_study_ts == today_ts or last_study_ts == today_ts - 86400:
+        active_current_streak = current_streak
+    else:
+        active_current_streak = 0
+
+    return {'longest': longest_streak, 'current': active_current_streak}
+
 
 def fetch_review_data():
     """
@@ -92,13 +119,38 @@ def fetch_review_data():
 
     # 2. Calculate the offset in seconds (e.g., 4 hours * 3600 seconds/hour)
     offset_seconds = rollover_hour * 3600
+    day_in_seconds = 86400
 
     # The query remains the same: filter for 'learn' events
     query = "SELECT id FROM revlog WHERE type = 0 AND lastIvl = 0"
     all_timestamps_ms = mw.col.db.list(query)
 
-    # Use collections.Counter to efficiently count reviews per day
-    counts = Counter(
+    all_day_timestamps = [
+        int((ts / 1000 - offset_seconds) // day_in_seconds * day_in_seconds)
+        for ts in all_timestamps_ms
+    ]
+
+    # 2. Use Counter to count how many times each day-timestamp appears.
+    #    This gives us a dictionary of {timestamp: count}.
+    daily_counts = Counter(all_day_timestamps)
+    
+    # 3. Format the data for Cal-Heatmap using the correct counts.
+    heatmap_data = [
+        {"date": datetime.fromtimestamp(ts).strftime('%Y-%m-%d'), "value": count} 
+        for ts, count in daily_counts.items()
+    ]
+    
+    # --- Streak calculation remains the same, but uses the keys from our Counter ---
+    unique_day_timestamps = sorted(daily_counts.keys())
+    today_ts = mw.col.sched.day_cutoff - day_in_seconds
+    streaks = calculate_streaks(unique_day_timestamps, today_ts)
+    
+    return {
+        'heatmap_data': heatmap_data,
+        'longest_streak': streaks['longest'],
+        'current_streak': streaks['current']
+    }
+"""counts = Counter(
         # 3. For each timestamp, subtract the offset BEFORE converting to a date
         datetime.fromtimestamp((ts / 1000) - offset_seconds).strftime('%Y-%m-%d')
         for ts in all_timestamps_ms
@@ -106,7 +158,7 @@ def fetch_review_data():
     
     # The rest of the function is unchanged
     heatmap_data = [{"date": date, "value": count} for date, count in counts.items()]
-    return heatmap_data
+    return heatmap_data"""
 
 def show_heatmap_with_data():
     """

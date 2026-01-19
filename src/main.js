@@ -20,7 +20,7 @@ function initHeatmap() {
         scale: {
         color: {
             type: 'threshold',
-            range: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+            range: ['#040404ff', '#abf9efff', '#4ad5e4ff','#38abcfff', '#218a9dff'],
             domain: [1, 10, 25, 50]
         }
         }
