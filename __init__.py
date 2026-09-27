@@ -88,7 +88,7 @@ def fetch_review_data():
     daily_counts = Counter(all_day_timestamps)
 
     heatmap_data = [
-        {"date": datetime.fromtimestamp(ts).strftime('%Y-%m-%d'), "value": count} 
+        {"date": datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S'), "value": count} 
         for ts, count in daily_counts.items()
     ]
 
